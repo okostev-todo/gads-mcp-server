@@ -32,3 +32,6 @@ steps:
 images:
   - 'us-central1-docker.pkg.dev/cobalt-aria-495011-u4/google-ads-mcp/server:$COMMIT_SHA'
   - 'us-central1-docker.pkg.dev/cobalt-aria-495011-u4/google-ads-mcp/server:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
