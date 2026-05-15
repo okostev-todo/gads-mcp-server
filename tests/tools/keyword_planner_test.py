@@ -44,7 +44,9 @@ class TestKeywordPlanner(unittest.TestCase):
         mock_client = MagicMock()
         mock_get_client.return_value = mock_client
 
-        mock_idea = _make_mock_idea("buy shoes", 5000, "HIGH", 90, 500000, 2000000)
+        mock_idea = _make_mock_idea(
+            "buy shoes", 5000, "HIGH", 90, 500000, 2000000
+        )
         mock_service.generate_keyword_ideas.return_value = [mock_idea]
 
         results = keyword_planner.generate_keyword_ideas(

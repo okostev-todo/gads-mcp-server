@@ -27,9 +27,7 @@ def _make_google_ads_exception(message, request_id):
     mock_error.message = message
     mock_failure = MagicMock()
     mock_failure.errors = [mock_error]
-    ex = GoogleAdsException(
-        MagicMock(), MagicMock(), MagicMock(), MagicMock()
-    )
+    ex = GoogleAdsException(MagicMock(), MagicMock(), MagicMock(), MagicMock())
     ex.failure = mock_failure
     ex.request_id = request_id
     return ex

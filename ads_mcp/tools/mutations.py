@@ -25,12 +25,9 @@ from fastmcp.exceptions import ToolError
 
 def _raise_google_ads_error(ex: GoogleAdsException):
     error_msgs = [
-        f"Google Ads API Error: {error.message}"
-        for error in ex.failure.errors
+        f"Google Ads API Error: {error.message}" for error in ex.failure.errors
     ]
-    raise ToolError(
-        f"Request ID: {ex.request_id}\n" + "\n".join(error_msgs)
-    )
+    raise ToolError(f"Request ID: {ex.request_id}\n" + "\n".join(error_msgs))
 
 
 @mcp.tool()
@@ -333,9 +330,7 @@ def update_campaign_status(
     campaign = operation.update
     campaign.resource_name = campaign_resource_name
     campaign.status = getattr(client.enums.CampaignStatusEnum, status)
-    operation.update_mask.CopyFrom(
-        field_mask_pb2.FieldMask(paths=["status"])
-    )
+    operation.update_mask.CopyFrom(field_mask_pb2.FieldMask(paths=["status"]))
 
     try:
         response = service.mutate_campaigns(

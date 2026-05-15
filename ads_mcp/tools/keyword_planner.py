@@ -35,12 +35,9 @@ def _extract_idea_metrics(text: str, metrics) -> Dict[str, Any]:
 
 def _raise_google_ads_error(ex: GoogleAdsException):
     error_msgs = [
-        f"Google Ads API Error: {error.message}"
-        for error in ex.failure.errors
+        f"Google Ads API Error: {error.message}" for error in ex.failure.errors
     ]
-    raise ToolError(
-        f"Request ID: {ex.request_id}\n" + "\n".join(error_msgs)
-    )
+    raise ToolError(f"Request ID: {ex.request_id}\n" + "\n".join(error_msgs))
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
@@ -78,9 +75,7 @@ def generate_keyword_ideas(
         high_top_of_page_bid_micros.
     """
     if not keywords and not url:
-        raise ToolError(
-            "At least one of 'keywords' or 'url' must be provided."
-        )
+        raise ToolError("At least one of 'keywords' or 'url' must be provided.")
 
     client = utils.get_googleads_client()
     service = utils.get_googleads_service("KeywordPlanIdeaService")
@@ -161,9 +156,7 @@ def get_keyword_historical_metrics(
     )
 
     try:
-        response = service.generate_keyword_historical_metrics(
-            request=request
-        )
+        response = service.generate_keyword_historical_metrics(request=request)
         return [
             _extract_idea_metrics(item.text, item.keyword_metrics)
             for item in response.metrics
