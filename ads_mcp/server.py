@@ -14,6 +14,9 @@
 
 """Entry point for the MCP server."""
 
+import os
+
+import anyio
 from ads_mcp.coordinator import mcp
 
 # The following imports are necessary to register the tools with the `mcp`
@@ -35,7 +38,23 @@ from ads_mcp.resources import (
 )  # noqa: F401
 
 
-import os
+async def _pre_register_client() -> None:
+    """Pre-register OAuth client on startup to survive Cloud Run revision restarts.
+
+    Reads GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID from the environment and registers
+    it with the OAuth provider so Claude.ai can connect without requiring a manual
+    /register call after every deploy.
+    """
+    client_id = os.environ.get("GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID")
+    if not client_id or not mcp.auth:
+        return
+    from mcp.shared.auth import OAuthClientInformationFull
+
+    client_info = OAuthClientInformationFull(
+        client_id=client_id,
+        redirect_uris=["https://claude.ai/api/mcp/oauth_callback"],
+    )
+    await mcp.auth.register_client(client_info)
 
 
 def run_server() -> None:
@@ -44,7 +63,14 @@ def run_server() -> None:
     port = int(os.environ.get("PORT", "8080"))
 
     if _CLIENT_ID and _CLIENT_SECRET:
-        mcp.run(transport="streamable-http", port=port, host="0.0.0.0")
+
+        async def _run() -> None:
+            await _pre_register_client()
+            await mcp.run_async(
+                transport="streamable-http", port=port, host="0.0.0.0"
+            )
+
+        anyio.run(_run)
     else:
         mcp.run()
 

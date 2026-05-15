@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1] - 2026-05-15
+
+### Fixed
+- OAuth client registration now survives Cloud Run revision restarts automatically.
+  Set `GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID` env var in Cloud Run to the client ID
+  from your Claude.ai connector — the server pre-registers it on every startup,
+  so you never need to run `curl /register` manually after a deploy.
+
 ## [0.1.0] - 2026-05-15
 
 ### Added
