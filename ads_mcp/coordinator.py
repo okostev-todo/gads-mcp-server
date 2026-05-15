@@ -26,6 +26,7 @@ from fastmcp.server.auth.providers.google import GoogleProvider
 _CLIENT_ID = os.environ.get("GOOGLE_ADS_MCP_OAUTH_CLIENT_ID")
 _CLIENT_SECRET = os.environ.get("GOOGLE_ADS_MCP_OAUTH_CLIENT_SECRET")
 _BASE_URL = os.environ.get("GOOGLE_ADS_MCP_BASE_URL", "http://localhost:8080")
+_REGISTERED_CLIENT_ID = os.environ.get("GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID")
 
 if _CLIENT_ID and _CLIENT_SECRET:
     auth = GoogleProvider(
@@ -39,6 +40,35 @@ if _CLIENT_ID and _CLIENT_SECRET:
             "https://www.googleapis.com/auth/adwords",
         ],
     )
+
+    if _REGISTERED_CLIENT_ID:
+        # Synthesize a client in memory so the known client_id survives
+        # Cloud Run revision restarts without depending on the ephemeral file store.
+        # This mirrors what OAuthProxy already does for the upstream client_id.
+        _orig_get_client = auth.get_client
+
+        async def _get_client_with_fixed_registration(client_id: str):
+            if client_id == _REGISTERED_CLIENT_ID:
+                from fastmcp.server.auth.oauth_proxy.models import (
+                    ProxyDCRClient,
+                )
+                from pydantic import AnyUrl
+
+                return ProxyDCRClient(
+                    client_id=client_id,
+                    client_secret=None,
+                    redirect_uris=[
+                        AnyUrl("https://claude.ai/api/mcp/oauth_callback")
+                    ],
+                    grant_types=["authorization_code", "refresh_token"],
+                    scope=auth._default_scope_str,
+                    token_endpoint_auth_method="none",
+                    allowed_redirect_uri_patterns=None,
+                )
+            return await _orig_get_client(client_id)
+
+        auth.get_client = _get_client_with_fixed_registration
+
     mcp = FastMCP("Google Ads Server", auth=auth)
 else:
     mcp = FastMCP("Google Ads Server")
