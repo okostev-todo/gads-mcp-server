@@ -121,7 +121,8 @@ def create_campaign(
         client.enums.AdvertisingChannelTypeEnum, advertising_channel_type
     )
     campaign.status = getattr(client.enums.CampaignStatusEnum, status)
-    campaign.start_date = start_date or date.today().strftime("%Y%m%d")
+    if start_date:
+        campaign.start_date = start_date
     if end_date:
         campaign.end_date = end_date
 
