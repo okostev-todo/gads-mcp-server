@@ -139,9 +139,10 @@ def get_keyword_historical_metrics(
             'GOOGLE_SEARCH_AND_PARTNERS'.
 
     Returns:
-        List of dicts with keys: text, avg_monthly_searches, competition,
-        competition_index, low_top_of_page_bid_micros,
-        high_top_of_page_bid_micros.
+        List of dicts with keys: text, close_variants, avg_monthly_searches,
+        competition, competition_index, low_top_of_page_bid_micros,
+        high_top_of_page_bid_micros, monthly_search_volumes (list of
+        {year, month, monthly_searches} for the past 12 months).
     """
     client = utils.get_googleads_client()
     service = utils.get_googleads_service("KeywordPlanIdeaService")
@@ -157,9 +158,26 @@ def get_keyword_historical_metrics(
 
     try:
         response = service.generate_keyword_historical_metrics(request=request)
-        return [
-            _extract_idea_metrics(item.text, item.keyword_metrics)
-            for item in response.results
-        ]
+        results = []
+        for item in response.results:
+            m = item.keyword_metrics
+            results.append({
+                "text": item.text,
+                "close_variants": list(item.close_variants),
+                "avg_monthly_searches": m.avg_monthly_searches,
+                "competition": m.competition.name,
+                "competition_index": m.competition_index,
+                "low_top_of_page_bid_micros": m.low_top_of_page_bid_micros,
+                "high_top_of_page_bid_micros": m.high_top_of_page_bid_micros,
+                "monthly_search_volumes": [
+                    {
+                        "year": v.year,
+                        "month": v.month.name,
+                        "monthly_searches": v.monthly_searches,
+                    }
+                    for v in m.monthly_search_volumes
+                ],
+            })
+        return results
     except GoogleAdsException as ex:
         _raise_google_ads_error(ex)

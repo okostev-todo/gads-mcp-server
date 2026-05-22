@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4] - 2026-05-22
+
+### Added
+- `get_keyword_historical_metrics`: now returns `monthly_search_volumes`
+  (list of `{year, month, monthly_searches}` for the past 12 months) and
+  `close_variants` (keywords Google merges with the queried term).
+
 ## [0.1.3] - 2026-05-22
 
 ### Fixed

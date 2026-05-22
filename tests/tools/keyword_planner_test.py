@@ -168,13 +168,20 @@ class TestKeywordPlanner(unittest.TestCase):
         mock_get_service.return_value = mock_service
         mock_get_client.return_value = MagicMock()
 
+        mock_vol = MagicMock()
+        mock_vol.year = 2026
+        mock_vol.month.name = "JANUARY"
+        mock_vol.monthly_searches = 3200
+
         mock_item = MagicMock()
         mock_item.text = "running shoes"
+        mock_item.close_variants = ["running shoe", "run shoes"]
         mock_item.keyword_metrics.avg_monthly_searches = 3000
         mock_item.keyword_metrics.competition.name = "MEDIUM"
         mock_item.keyword_metrics.competition_index = 55
         mock_item.keyword_metrics.low_top_of_page_bid_micros = 300000
         mock_item.keyword_metrics.high_top_of_page_bid_micros = 1500000
+        mock_item.keyword_metrics.monthly_search_volumes = [mock_vol]
         mock_service.generate_keyword_historical_metrics.return_value.results = [
             mock_item
         ]
@@ -191,8 +198,13 @@ class TestKeywordPlanner(unittest.TestCase):
         mock_service.generate_keyword_historical_metrics.assert_called_once()
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["text"], "running shoes")
+        self.assertEqual(results[0]["close_variants"], ["running shoe", "run shoes"])
         self.assertEqual(results[0]["avg_monthly_searches"], 3000)
         self.assertEqual(results[0]["competition"], "MEDIUM")
+        self.assertEqual(len(results[0]["monthly_search_volumes"]), 1)
+        self.assertEqual(results[0]["monthly_search_volumes"][0]["year"], 2026)
+        self.assertEqual(results[0]["monthly_search_volumes"][0]["month"], "JANUARY")
+        self.assertEqual(results[0]["monthly_search_volumes"][0]["monthly_searches"], 3200)
 
     @patch("ads_mcp.utils.get_googleads_service")
     @patch("ads_mcp.utils.get_googleads_client")
