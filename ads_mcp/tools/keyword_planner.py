@@ -159,7 +159,7 @@ def get_keyword_historical_metrics(
         response = service.generate_keyword_historical_metrics(request=request)
         return [
             _extract_idea_metrics(item.text, item.keyword_metrics)
-            for item in response.metrics
+            for item in response.results
         ]
     except GoogleAdsException as ex:
         _raise_google_ads_error(ex)

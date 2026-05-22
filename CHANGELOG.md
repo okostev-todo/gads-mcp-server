@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3] - 2026-05-22
+
+### Fixed
+- `get_keyword_historical_metrics`: iterate `response.results` instead of
+  `response.metrics` to match `GenerateKeywordHistoricalMetricsResponse`
+  structure. Fixed corresponding mock in unit test.
+
 ## [0.1.2] - 2026-05-15
 
 ### Fixed

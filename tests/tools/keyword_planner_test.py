@@ -175,7 +175,7 @@ class TestKeywordPlanner(unittest.TestCase):
         mock_item.keyword_metrics.competition_index = 55
         mock_item.keyword_metrics.low_top_of_page_bid_micros = 300000
         mock_item.keyword_metrics.high_top_of_page_bid_micros = 1500000
-        mock_service.generate_keyword_historical_metrics.return_value.metrics = [
+        mock_service.generate_keyword_historical_metrics.return_value.results = [
             mock_item
         ]
 
