@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0] - 2026-05-22
+
+### Added
+- Google Search Console integration: `list_gsc_sites`,
+  `query_search_analytics`, `inspect_url` tools.
+  Reuses existing FastMCP OAuth session — `webmasters` scope added
+  to GoogleProvider. Requires re-authentication in Claude.ai connector
+  to grant the new scope.
+
 ## [0.1.4] - 2026-05-22
 
 ### Added

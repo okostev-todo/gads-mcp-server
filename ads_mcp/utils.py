@@ -36,10 +36,9 @@ _GAQL_FILENAME = "gaql_resources.txt"
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# OAuth scope for the Google Ads API. Google Ads does not publish a separate
-# read-only scope; access is restricted to read methods by the tools this
-# server exposes (see ads_mcp/tools/).
+# OAuth scopes used by this server.
 _ADS_SCOPE = "https://www.googleapis.com/auth/adwords"
+_GSC_SCOPE = "https://www.googleapis.com/auth/webmasters"
 
 
 def _create_credentials() -> google.auth.credentials.Credentials:
@@ -52,7 +51,7 @@ def _create_credentials() -> google.auth.credentials.Credentials:
         # Create credentials using the access token provided by FastMCP
         return Credentials(token=token_obj.token)
 
-    credentials, _ = google.auth.default(scopes=[_ADS_SCOPE])
+    credentials, _ = google.auth.default(scopes=[_ADS_SCOPE, _GSC_SCOPE])
     return credentials
 
 
@@ -101,6 +100,12 @@ def get_googleads_type(typeName: str):
 
 def get_googleads_client():
     return _get_googleads_client()
+
+
+def get_gsc_service():
+    """Returns an authenticated Google Search Console API client."""
+    from googleapiclient.discovery import build
+    return build("searchconsole", "v1", credentials=_create_credentials())
 
 
 def format_output_value(value: Any) -> Any:
