@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - 2026-05-25
+
+### Added
+- Google Analytics 4 integration: `list_ga4_properties`,
+  `get_ga4_metadata`, `run_ga4_report`, `run_ga4_realtime_report`,
+  `batch_run_ga4_reports` tools using GA4 Data API v1 and Admin API.
+  Filter helper converts simple dicts to GA4 FilterExpression.
+  Reuses existing FastMCP OAuth session — `analytics.readonly` scope added.
+- Renamed MCP server from "Google Ads Server" to "Google Marketing Server".
+
 ## [0.2.0] - 2026-05-22
 
 ### Added

@@ -108,6 +108,18 @@ def get_gsc_service():
     return build("searchconsole", "v1", credentials=_create_credentials())
 
 
+def get_ga4_data_client():
+    """Returns an authenticated GA4 Data API client."""
+    from google.analytics.data_v1beta import BetaAnalyticsDataClient
+    return BetaAnalyticsDataClient(credentials=_create_credentials())
+
+
+def get_ga4_admin_client():
+    """Returns an authenticated GA4 Admin API client."""
+    from google.analytics.admin_v1beta import AnalyticsAdminServiceClient
+    return AnalyticsAdminServiceClient(credentials=_create_credentials())
+
+
 def format_output_value(value: Any) -> Any:
     if isinstance(value, proto.Enum):
         return value.name

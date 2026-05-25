@@ -39,6 +39,7 @@ if _CLIENT_ID and _CLIENT_SECRET:
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/adwords",
             "https://www.googleapis.com/auth/webmasters",
+            "https://www.googleapis.com/auth/analytics.readonly",
         ],
     )
 
@@ -70,6 +71,6 @@ if _CLIENT_ID and _CLIENT_SECRET:
 
         auth.get_client = _get_client_with_fixed_registration
 
-    mcp = FastMCP("Google Ads Server", auth=auth)
+    mcp = FastMCP("Google Marketing Server", auth=auth)
 else:
-    mcp = FastMCP("Google Ads Server")
+    mcp = FastMCP("Google Marketing Server")

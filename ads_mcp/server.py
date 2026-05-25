@@ -29,6 +29,7 @@ from ads_mcp.tools import (
     keyword_planner,
     mutations,
     search_console,
+    analytics,
 )  # noqa: F401
 from ads_mcp.resources import (
     discovery,
