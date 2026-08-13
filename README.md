@@ -18,6 +18,57 @@ to provide several
 - `list_accessible_customers`: Returns ids of customers directly accessible
   by the user authenticating the call.
 
+#### Write tools
+
+Every write tool accepts `validate_only`, which asks the API to check the
+operation and report errors without applying anything. Use it before any real
+write. Where the API supports it, invalid rows are reported per-row in an
+`errors` field instead of failing the whole batch.
+
+- `mutate_google_ads`: General-purpose write access to any mutable resource
+  via `GoogleAdsService.Mutate`. Accepts a list of operations, derives
+  `update_mask` from the fields you set, and supports `validate_only` and
+  `partial_failure`. Use it when no dedicated tool below fits.
+
+Exclusions:
+
+- `add_account_level_exclusions`: Excludes placements, mobile apps, YouTube
+  videos/channels and sensitive content categories account-wide. This is what
+  applies to Performance Max Display and YouTube inventory.
+- `add_campaign_exclusions`: The same inventory exclusions, scoped to one
+  campaign.
+- `create_shared_exclusion_list`, `add_criteria_to_shared_set`,
+  `attach_shared_set_to_campaigns`: Build a shared negative keyword or
+  placement list once and attach it to many campaigns.
+- `remove_criteria`: Removes criteria, shared lists, campaign links and asset
+  group signals by resource name, routing each to the right service.
+
+Conversions:
+
+- `upload_offline_conversions`: Imports conversions with their real values
+  from a CRM, keyed by `gclid`, `gbraid` or `wbraid`.
+- `upload_conversion_adjustments`: Retracts conversions that should not have
+  counted (e.g. fraudulent leads) or restates their value after the fact.
+- `create_conversion_action`, `update_conversion_action`: Manages conversion
+  actions, their default values and lookback windows.
+
+Campaign and Performance Max maintenance:
+
+- `update_asset_group_status`: Pauses, enables or removes asset groups in bulk.
+- `add_asset_group_signals`: Adds search themes and audience signals to an
+  asset group.
+- `update_campaign_bidding`: Sets the bidding strategy and its tROAS or tCPA
+  target.
+- `update_campaign`: Updates a campaign's name, budget link or schedule.
+- `update_campaign_status`: Enables, pauses or removes a campaign.
+- `update_campaign_budget`: Changes a budget's amount or settings.
+- `create_campaign_budget`, `create_campaign`, `create_ad_group`,
+  `add_keywords_to_ad_group`, `add_negative_keywords`,
+  `create_responsive_search_ad`: Builds out new campaign structure.
+
+> **Note:** Write tools require a Standard Access developer token to operate on
+> production accounts. Explorer-level access is limited to test accounts.
+
 ### Resources available
 
 - `discovery-document`: Retrieve the Google Ads API discovery document. Provides the discovery document for the latest version of the Google Ads API, which describes the API surface, including resources, methods, and schemas. Host LLMs should access this resource to understand the structure of the Google Ads API and discover available features.

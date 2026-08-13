@@ -6,6 +6,262 @@
           "tags": []
         }
       },
+      "description": "Excludes placements, apps, videos or content types account-wide.\n\nThese exclusions apply to every campaign in the account, including\nPerformance Max, and are the only reliable way to stop PMax from serving\non specific Display placements, mobile apps or YouTube inventory. Use this\nto clear out junk placements found in a placement report.\n\nExclusions are additive and take effect immediately. To undo one, pass its\nresource name to remove_criteria.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "content_labels": {
+            "default": null,
+            "description": "Sensitive content categories to exclude, e.g.\n['TRAGEDY', 'SEXUALLY_SUGGESTIVE', 'PROFANITY']. An invalid name\nreturns the full list of valid values.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens (e.g. '5132067848').",
+            "type": "string"
+          },
+          "mobile_apps": {
+            "default": null,
+            "description": "Mobile app IDs to exclude. Android uses the package\nname and iOS uses the numeric store id, both prefixed by\nplatform, e.g. ['1-com.example.app', '2-123456789'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "placements": {
+            "default": null,
+            "description": "Website domains or URLs to exclude,\ne.g. ['badsite.example', 'example.com/spam-page'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying. Recommended for\na first pass on a large list.",
+            "type": "boolean"
+          },
+          "youtube_channels": {
+            "default": null,
+            "description": "YouTube channel IDs to exclude, e.g. ['UCxxxx'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "youtube_videos": {
+            "default": null,
+            "description": "YouTube video IDs to exclude (the 11-character id\nfrom the watch URL, not the full URL).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "type": "object"
+      },
+      "name": "add_account_level_exclusions",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Adds search themes and audience signals to a PMax asset group.\n\nSignals tell Performance Max where to start looking for converting users.\nThey guide the campaign rather than constrain it: PMax can still serve\noutside a signal, so signals are not a substitute for exclusions.\n\nSignals cannot be edited, only added and removed. To replace one, add the\nnew signal and pass the old one's resource name to remove_criteria.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_group_resource_name": {
+            "description": "Target asset group,\ne.g. 'customers/123/assetGroups/456'.",
+            "type": "string"
+          },
+          "audience_resource_names": {
+            "default": null,
+            "description": "Audience resource names to signal,\ne.g. ['customers/123/audiences/789']. Build audiences first;\nthis tool only links existing ones.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "search_themes": {
+            "default": null,
+            "description": "Free-text themes describing what customers search for,\ne.g. ['crm for small business', 'accounting software']. Each theme\nbehaves like a broad hint, so keep them specific.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "asset_group_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "add_asset_group_signals",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Excludes placements, apps, videos or content types for one campaign.\n\nSame inventory controls as add_account_level_exclusions but scoped to a\nsingle campaign, for when other campaigns should still be allowed to serve\nthere. For negative keywords use add_negative_keywords instead.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "campaign_resource_name": {
+            "description": "Target campaign,\ne.g. 'customers/123/campaigns/456'.",
+            "type": "string"
+          },
+          "content_labels": {
+            "default": null,
+            "description": "Sensitive content categories to exclude.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "mobile_apps": {
+            "default": null,
+            "description": "Mobile app IDs to exclude, platform-prefixed.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "placements": {
+            "default": null,
+            "description": "Website domains or URLs to exclude.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          },
+          "youtube_channels": {
+            "default": null,
+            "description": "YouTube channel IDs to exclude.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "youtube_videos": {
+            "default": null,
+            "description": "YouTube video IDs to exclude.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "customer_id",
+          "campaign_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "add_campaign_exclusions",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Adds negative keywords or placements to a shared exclusion list.\n\nUse this both to fill a new list and to top up an existing one. The\ncriterion kind must match the list's type: keywords go into a\nNEGATIVE_KEYWORDS list, placements into a NEGATIVE_PLACEMENTS list.\n\nEvery campaign already linked to the list picks up the additions\nimmediately, with no need to re-attach.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "keywords": {
+            "default": null,
+            "description": "Negative keyword texts to add.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "match_type": {
+            "default": "BROAD",
+            "description": "Match type for keywords. 'BROAD' (default), 'PHRASE'\nor 'EXACT'.",
+            "type": "string"
+          },
+          "placements": {
+            "default": null,
+            "description": "Domains or URLs to add.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "shared_set_resource_name": {
+            "description": "Target list,\ne.g. 'customers/123/sharedSets/456'.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "shared_set_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "add_criteria_to_shared_set",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "description": "Adds positive keywords to an ad group in a single batch call.",
       "inputSchema": {
         "additionalProperties": false,
@@ -109,6 +365,100 @@
           "result": {
             "items": {
               "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Links a shared exclusion list to one or more campaigns.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "campaign_resource_names": {
+            "description": "Campaigns that should use the list.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "shared_set_resource_name": {
+            "description": "List to attach,\ne.g. 'customers/123/sharedSets/456'.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "shared_set_resource_name",
+          "campaign_resource_names"
+        ],
+        "type": "object"
+      },
+      "name": "attach_shared_set_to_campaigns",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Runs up to 5 GA4 reports in a single API call.\n\nMore efficient than multiple run_ga4_report calls when building\na multi-section analysis.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "property_id": {
+            "description": "GA4 property ID, e.g. '123456789'.",
+            "type": "string"
+          },
+          "reports": {
+            "description": "List of up to 5 report configs. Each config supports the\nsame keys as run_ga4_report: dimensions, metrics, date_ranges,\ndimension_filter, metric_filter, order_bys, limit, offset,\nkeep_empty_rows.",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "property_id",
+          "reports"
+        ],
+        "type": "object"
+      },
+      "name": "batch_run_ga4_reports",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
             },
             "type": "array"
           }
@@ -298,6 +648,95 @@
           "tags": []
         }
       },
+      "description": "Creates a conversion action, e.g. a target for offline imports.\n\nTo import conversions from a CRM, create an action with the default\naction_type 'UPLOAD_CLICKS' and pass its resource name to\nupload_offline_conversions.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "action_type": {
+            "default": "UPLOAD_CLICKS",
+            "description": "'UPLOAD_CLICKS' (default) for offline click imports, or\n'UPLOAD_CALLS' for call imports. Web tag types cannot be created\nthrough this tool.",
+            "type": "string"
+          },
+          "always_use_default_value": {
+            "default": false,
+            "description": "When True, the default value overrides\nvalues sent with each conversion.",
+            "type": "boolean"
+          },
+          "category": {
+            "default": "DEFAULT",
+            "description": "What the conversion represents, e.g. 'DEFAULT', 'PURCHASE',\n'CONVERTED_LEAD', 'QUALIFIED_LEAD', 'CONTACT'. An invalid name\nreturns the list of valid values.",
+            "type": "string"
+          },
+          "click_through_lookback_window_days": {
+            "default": null,
+            "description": "How long after a click a\nconversion may still be credited, 1-90 days. Uploads outside this\nwindow are rejected, so raise it for long sales cycles.",
+            "type": "integer"
+          },
+          "counting_type": {
+            "default": "ONE_PER_CLICK",
+            "description": "'ONE_PER_CLICK' (default, for leads) or\n'MANY_PER_CLICK' (for repeated purchases).",
+            "type": "string"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "default_currency_code": {
+            "default": null,
+            "description": "ISO 4217 code for the default value,\ne.g. 'UAH'.",
+            "type": "string"
+          },
+          "default_value": {
+            "default": null,
+            "description": "Value applied when an upload omits one.",
+            "type": "number"
+          },
+          "name": {
+            "description": "Name of the conversion action, unique within the account.",
+            "type": "string"
+          },
+          "primary_for_goal": {
+            "default": true,
+            "description": "When True the action counts toward campaign bidding.\nSet False for an action you want to observe without bidding on it.",
+            "type": "boolean"
+          },
+          "status": {
+            "default": "ENABLED",
+            "description": "'ENABLED' (default) or 'HIDDEN'.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without creating.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "name": "create_conversion_action",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "description": "Creates a responsive search ad (RSA) within an ad group.\n\nNew ads are created in PAUSED status by default. Google Ads rotates\nand tests combinations of headlines and descriptions automatically.",
       "inputSchema": {
         "additionalProperties": false,
@@ -347,6 +786,55 @@
         "type": "object"
       },
       "name": "create_responsive_search_ad",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Creates an empty shared exclusion list.\n\nA shared list is maintained once and attached to many campaigns, which is\nthe maintainable way to run a common negative list. The full flow is:\ncreate the list here, fill it with add_criteria_to_shared_set, then link it\nto campaigns with attach_shared_set_to_campaigns.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "list_type": {
+            "default": "NEGATIVE_KEYWORDS",
+            "description": "'NEGATIVE_KEYWORDS' (default) or 'NEGATIVE_PLACEMENTS'.\nA list holds only its own kind of criterion.",
+            "type": "string"
+          },
+          "name": {
+            "description": "List name, unique within the account.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "name": "create_shared_exclusion_list",
       "outputSchema": {
         "properties": {
           "result": {
@@ -435,6 +923,35 @@
         ],
         "type": "object",
         "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Returns all available dimensions and metrics for a GA4 property.\n\nIncludes custom dimensions and events configured for this property.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "property_id": {
+            "description": "GA4 property ID, e.g. 'properties/123456789' or\njust '123456789'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "property_id"
+        ],
+        "type": "object"
+      },
+      "name": "get_ga4_metadata",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
       }
     },
     {
@@ -542,6 +1059,40 @@
       "annotations": {
         "readOnlyHint": true
       },
+      "description": "Inspects a URL's indexing status in Google Search Console.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "inspection_url": {
+            "description": "The exact URL to inspect,\ne.g. 'https://example.com/page'.",
+            "type": "string"
+          },
+          "site_url": {
+            "description": "GSC property that owns the URL,\ne.g. 'sc-domain:example.com'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_url",
+          "inspection_url"
+        ],
+        "type": "object"
+      },
+      "name": "inspect_url",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
       "description": "Returns ids of customers directly accessible by the user authenticating the call.\n\nUse this tool first to discover available customer IDs if the user hasn't\nprovided one. Most other tools require a valid customer ID as input.\n\nReturns:\n    List[str]: A list of customer IDs.",
       "inputSchema": {
         "additionalProperties": false,
@@ -563,6 +1114,403 @@
         ],
         "type": "object",
         "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists all GA4 accounts and properties the user has access to.\n\nReturns:\n    List of dicts with keys: account_id, account_name, property_id,\n    property_name, time_zone, currency_code.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "list_ga4_properties",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists all sites the authenticated user has in Google Search Console.\n\nReturns:\n    List of dicts with keys: siteUrl, permissionLevel.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "list_gsc_sites",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Applies arbitrary write operations to any Google Ads resource.\n\nThis is the general-purpose write tool: it wraps GoogleAdsService.Mutate,\nwhich accepts operations for any mutable resource type. Prefer it when no\ndedicated tool exists for what you need, or when several changes must be\napplied together.\n\nAlways dry-run first with validate_only=True. The API then checks every\noperation and reports errors without writing anything, which is the safe\nway to confirm an operation is well formed before it takes effect.\n\nEach entry in `operations` is an object with exactly one\n'<resource>_operation' key, whose value holds one of 'create', 'update' or\n'remove'. For 'update' the update_mask is derived automatically from the\nfields you set, so you normally do not pass it. For 'remove' the value is\nthe resource name string. Enum fields are given as their string name, and\nmonetary amounts are in micros (1 unit = 1,000,000 micros).",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "description": "Customer ID without hyphens (e.g. '5132067848').",
+            "type": "string"
+          },
+          "operations": {
+            "description": "List of operation objects as described above. Operations\nare applied in order, so a later one can reference an earlier\nresult by temporary id (a negative integer in the resource name).",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "partial_failure": {
+            "default": false,
+            "description": "When True, valid operations are applied and invalid\nones are reported in 'errors' instead of failing the whole batch.\nCannot be combined with validate_only.",
+            "type": "boolean"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate everything and write nothing.\nStrongly recommended before any real write.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "operations"
+        ],
+        "type": "object"
+      },
+      "name": "mutate_google_ads",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Queries Google Search Console search analytics data.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "dimensions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Dimensions to group by. Options: 'query', 'page',\n'country', 'device', 'date'. Default: ['query']."
+          },
+          "end_date": {
+            "description": "End date in YYYY-MM-DD format.",
+            "type": "string"
+          },
+          "row_limit": {
+            "default": 1000,
+            "description": "Max rows to return (1-25000). Default 1000.",
+            "type": "integer"
+          },
+          "site_url": {
+            "description": "GSC property URL, e.g. 'sc-domain:example.com' or\n'https://example.com/'.",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "Start date in YYYY-MM-DD format.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_url",
+          "start_date",
+          "end_date"
+        ],
+        "type": "object"
+      },
+      "name": "query_search_analytics",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Removes criteria, shared lists or signals by resource name.\n\nThe resource type is inferred from each name, so a single call can undo\nexclusions of different kinds. Supported types: campaignCriteria,\ncustomerNegativeCriteria, adGroupCriteria, sharedCriteria, sharedSets,\ncampaignSharedSets and assetGroupSignals.\n\nRemoval is permanent: the criterion has to be recreated to come back, and\nit loses its accumulated statistics. Run with validate_only=True first if\nthe list was assembled programmatically.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "resource_names": {
+            "description": "Resource names to remove, e.g.\n['customers/123/campaignCriteria/456~789',\n 'customers/123/customerNegativeCriteria/321'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "resource_names"
+        ],
+        "type": "object"
+      },
+      "name": "remove_criteria",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Runs a GA4 realtime report (last 30 minutes of activity).\n\nUse for troubleshooting \u0432\u0402\u201d e.g. verifying a new campaign or landing page\nis receiving traffic right now.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "dimension_filter": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional filter dict (same format as run_ga4_report)."
+          },
+          "dimensions": {
+            "description": "e.g. ['country', 'deviceCategory', 'unifiedScreenName'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "description": "Max rows. Default 100.",
+            "type": "integer"
+          },
+          "metrics": {
+            "description": "e.g. ['activeUsers', 'screenPageViews', 'eventCount'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "property_id": {
+            "description": "GA4 property ID, e.g. '123456789'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "property_id",
+          "dimensions",
+          "metrics"
+        ],
+        "type": "object"
+      },
+      "name": "run_ga4_realtime_report",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Runs a GA4 analytics report.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "date_ranges": {
+            "description": "List of date range dicts with 'start_date' and 'end_date'.\nSupports relative dates: 'today', 'yesterday', 'NdaysAgo'.\nExample: [{\"start_date\": \"30daysAgo\", \"end_date\": \"today\"}]",
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dimension_filter": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional filter dict. Examples:\n{\"field\": \"sessionMedium\", \"match\": \"EXACT\", \"value\": \"cpc\"}\n{\"field\": \"sessionSource\", \"match\": \"IN_LIST\", \"values\": [\"google\", \"facebook\"]}\n{\"field\": \"pagePath\", \"match\": \"PARTIAL_REGEXP\", \"value\": \"/blog/\"}\n{\"and\": [{\"field\": \"sessionMedium\", \"match\": \"EXACT\", \"value\": \"cpc\"},\n         {\"field\": \"sessionSource\", \"match\": \"EXACT\", \"value\": \"google\"}]}"
+          },
+          "dimensions": {
+            "description": "Dimension names, e.g. ['sessionDefaultChannelGroup',\n'sessionSource', 'sessionMedium', 'landingPage', 'date',\n'yearMonth', 'country', 'deviceCategory'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "keep_empty_rows": {
+            "default": false,
+            "description": "Include rows with all-zero metrics. Default false.",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 10000,
+            "description": "Max rows to return (1-250000). Default 10000.",
+            "type": "integer"
+          },
+          "metric_filter": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional filter on metrics.\nExample: {\"field\": \"sessions\", \"match\": \"GREATER_THAN\", \"value\": 50}"
+          },
+          "metrics": {
+            "description": "Metric names, e.g. ['sessions', 'totalUsers', 'newUsers',\n'bounceRate', 'conversions', 'purchaseRevenue', 'averageSessionDuration'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Row offset for pagination. Default 0.",
+            "type": "integer"
+          },
+          "order_bys": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional sort order. Example:\n[{\"metric\": \"sessions\", \"desc\": true}]\n[{\"dimension\": \"date\", \"desc\": false}]"
+          },
+          "property_id": {
+            "description": "GA4 property, e.g. 'properties/123456789' or '123456789'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "property_id",
+          "dimensions",
+          "metrics",
+          "date_ranges"
+        ],
+        "type": "object"
+      },
+      "name": "run_ga4_report",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
       }
     },
     {
@@ -640,6 +1588,237 @@
           "tags": []
         }
       },
+      "description": "Pauses, enables or removes Performance Max asset groups in bulk.\n\nPausing unproductive asset groups concentrates a campaign's budget on the\nones that convert, and is the usual way to clear out groups that never\nramped up.\n\nThis service does not support partial failure, so the whole batch is\napplied or nothing is. Run with validate_only=True first when the list was\nassembled from a report.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_group_resource_names": {
+            "description": "Asset groups to change, e.g.\n['customers/123/assetGroups/456'].",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens (e.g. '5132067848').",
+            "type": "string"
+          },
+          "status": {
+            "description": "'PAUSED', 'ENABLED' or 'REMOVED'. 'REMOVED' is irreversible;\nprefer 'PAUSED' unless the group must be gone for good.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "asset_group_resource_names",
+          "status"
+        ],
+        "type": "object"
+      },
+      "name": "update_asset_group_status",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Updates a campaign's name, budget link or schedule.\n\nOnly the arguments you pass are changed. Use update_campaign_status to\npause or enable a campaign, and update_campaign_bidding to change targets.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "campaign_budget_resource_name": {
+            "default": null,
+            "description": "Budget to switch the campaign to,\ne.g. 'customers/123/campaignBudgets/789'. Moving a campaign onto\na different budget changes what it can spend that same day.",
+            "type": "string"
+          },
+          "campaign_resource_name": {
+            "description": "Campaign to update,\ne.g. 'customers/123/campaigns/456'.",
+            "type": "string"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "end_date": {
+            "default": null,
+            "description": "New end date in YYYYMMDD format. Use '20371230' to remove\nan end date and let the campaign run indefinitely.",
+            "type": "string"
+          },
+          "name": {
+            "default": null,
+            "description": "New campaign name.",
+            "type": "string"
+          },
+          "start_date": {
+            "default": null,
+            "description": "New start date in YYYYMMDD format. Cannot be changed once\nthe campaign has started serving.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "campaign_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "update_campaign",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Sets a campaign's bidding strategy and its target.\n\nPerformance Max runs on MAXIMIZE_CONVERSION_VALUE (optionally with a\ntROAS) or MAXIMIZE_CONVERSIONS (optionally with a tCPA). Passing a target\nof 0 or omitting it lets the strategy bid without one.\n\nChanging the strategy or moving a target sharply resets the learning\nperiod, so adjust targets in steps rather than all at once.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "campaign_resource_name": {
+            "description": "Campaign to update,\ne.g. 'customers/123/campaigns/456'.",
+            "type": "string"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "strategy": {
+            "description": "'MAXIMIZE_CONVERSION_VALUE', 'MAXIMIZE_CONVERSIONS',\n'TARGET_ROAS', 'TARGET_CPA', 'TARGET_SPEND' or 'MANUAL_CPC'.",
+            "type": "string"
+          },
+          "target_cpa_micros": {
+            "default": null,
+            "description": "Target cost per acquisition in micros\n(1 unit = 1,000,000 micros). Valid with MAXIMIZE_CONVERSIONS\nand TARGET_CPA.",
+            "type": "integer"
+          },
+          "target_roas": {
+            "default": null,
+            "description": "Target return on ad spend as a ratio, where 4.0 means\n400% \u0432\u0402\u201d i.e. 4 units of conversion value per unit spent. Valid\nwith MAXIMIZE_CONVERSION_VALUE and TARGET_ROAS.",
+            "type": "number"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "campaign_resource_name",
+          "strategy"
+        ],
+        "type": "object"
+      },
+      "name": "update_campaign_bidding",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Changes the amount or settings of an existing campaign budget.\n\nOnly the arguments you pass are changed. A budget shared by several\ncampaigns affects all of them, so check what is attached before raising or\nlowering an amount.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_micros": {
+            "default": null,
+            "description": "New daily amount in micros\n(1 unit = 1,000,000 micros, so 5000000 is 5 per day).",
+            "type": "integer"
+          },
+          "campaign_budget_resource_name": {
+            "description": "Budget to update,\ne.g. 'customers/123/campaignBudgets/456'.",
+            "type": "string"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "delivery_method": {
+            "default": null,
+            "description": "'STANDARD' or 'ACCELERATED'.",
+            "type": "string"
+          },
+          "explicitly_shared": {
+            "default": null,
+            "description": "Whether the budget may be shared across campaigns.",
+            "type": "boolean"
+          },
+          "name": {
+            "default": null,
+            "description": "New budget name.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "campaign_budget_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "update_campaign_budget",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "description": "Updates the status of an existing campaign.",
       "inputSchema": {
         "additionalProperties": false,
@@ -676,6 +1855,175 @@
         ],
         "type": "object",
         "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Updates settings on an existing conversion action.\n\nOnly the arguments you pass are changed; everything else is left alone.\nCommon uses are adjusting a default value, taking an action out of bidding\nwith primary_for_goal=False, or widening the lookback window so older\noffline conversions are still accepted.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "always_use_default_value": {
+            "default": null,
+            "description": "Whether the default value overrides\nuploaded values.",
+            "type": "boolean"
+          },
+          "category": {
+            "default": null,
+            "description": "New category, e.g. 'PURCHASE' or 'CONVERTED_LEAD'.",
+            "type": "string"
+          },
+          "click_through_lookback_window_days": {
+            "default": null,
+            "description": "New window, 1-90 days.",
+            "type": "integer"
+          },
+          "conversion_action_resource_name": {
+            "description": "Action to update,\ne.g. 'customers/123/conversionActions/456'.",
+            "type": "string"
+          },
+          "counting_type": {
+            "default": null,
+            "description": "'ONE_PER_CLICK' or 'MANY_PER_CLICK'.",
+            "type": "string"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "default_currency_code": {
+            "default": null,
+            "description": "New ISO 4217 currency code.",
+            "type": "string"
+          },
+          "default_value": {
+            "default": null,
+            "description": "New default value.",
+            "type": "number"
+          },
+          "name": {
+            "default": null,
+            "description": "New name.",
+            "type": "string"
+          },
+          "primary_for_goal": {
+            "default": null,
+            "description": "Whether the action counts toward campaign bidding.",
+            "type": "boolean"
+          },
+          "status": {
+            "default": null,
+            "description": "'ENABLED', 'HIDDEN' or 'REMOVED'.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "conversion_action_resource_name"
+        ],
+        "type": "object"
+      },
+      "name": "update_conversion_action",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Retracts or restates conversions already recorded in Google Ads.\n\nUse RETRACTION to cancel a conversion that should never have counted, such\nas a fraudulent or spam lead. Retracting stops Smart Bidding from learning\non that signal, which the Google Ads UI offers no equivalent way to do.\nUse RESTATEMENT to correct a value after the fact, e.g. once a deal closes\nat a different amount.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "adjustments": {
+            "description": "List of adjustment objects as described above.",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens.",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without applying.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "adjustments"
+        ],
+        "type": "object"
+      },
+      "name": "upload_conversion_adjustments",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Imports offline conversions with their real values into Google Ads.\n\nThis closes the attribution loop: send the click identifier captured on\nthe landing page back with the value the lead actually turned out to be\nworth, so Smart Bidding optimizes toward revenue instead of raw form fills.\nIt is also the fix for conversions that currently report a value of zero.\n\nThe conversion action must be of type UPLOAD_CLICKS (create one with\ncreate_conversion_action) and the click must be no older than the action's\nclick-through lookback window.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "conversions": {
+            "description": "List of conversion objects as described above.",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "customer_id": {
+            "description": "Customer ID without hyphens (e.g. '5132067848').",
+            "type": "string"
+          },
+          "validate_only": {
+            "default": false,
+            "description": "When True, validate without importing anything.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "conversions"
+        ],
+        "type": "object"
+      },
+      "name": "upload_offline_conversions",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
       }
     }
   ]

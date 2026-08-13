@@ -28,6 +28,10 @@ from ads_mcp.tools import (
     get_resource_metadata,
     keyword_planner,
     mutations,
+    mutate,
+    exclusions,
+    conversions,
+    pmax,
     search_console,
     analytics,
 )  # noqa: F401
