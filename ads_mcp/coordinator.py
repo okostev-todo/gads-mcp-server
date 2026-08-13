@@ -28,6 +28,39 @@ _CLIENT_SECRET = os.environ.get("GOOGLE_ADS_MCP_OAUTH_CLIENT_SECRET")
 _BASE_URL = os.environ.get("GOOGLE_ADS_MCP_BASE_URL", "http://localhost:8080")
 _REGISTERED_CLIENT_ID = os.environ.get("GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID")
 
+# Where Claude.ai expects the authorization code to be sent back.
+CLAUDE_REDIRECT_URI = "https://claude.ai/api/mcp/auth_callback"
+# Claude.ai has renamed this callback path once already
+# (oauth_callback -> auth_callback), and a synthesized client with no patterns
+# accepts only the exact URIs it was built with, which fails the flow with
+# "Redirect URI not registered for client". Matching on the path prefix
+# survives another rename while still pinning the host.
+CLAUDE_REDIRECT_URI_PATTERN = "https://claude.ai/api/mcp/*"
+
+
+def synthesize_registered_client(client_id: str, scope: str):
+    """Builds an in-memory OAuth client for an already-registered client_id.
+
+    Cloud Run gives each revision a fresh filesystem, so a client registered
+    through DCR is lost on redeploy and Claude.ai then fails to authenticate
+    with a client_id the server no longer recognizes. Rebuilding that client
+    from configuration keeps the known client_id valid across revisions, which
+    mirrors what OAuthProxy already does for the upstream client_id.
+    """
+    from fastmcp.server.auth.oauth_proxy.models import ProxyDCRClient
+    from pydantic import AnyUrl
+
+    return ProxyDCRClient(
+        client_id=client_id,
+        client_secret=None,
+        redirect_uris=[AnyUrl(CLAUDE_REDIRECT_URI)],
+        grant_types=["authorization_code", "refresh_token"],
+        scope=scope,
+        token_endpoint_auth_method="none",
+        allowed_redirect_uri_patterns=[CLAUDE_REDIRECT_URI_PATTERN],
+    )
+
+
 if _CLIENT_ID and _CLIENT_SECRET:
     auth = GoogleProvider(
         client_id=_CLIENT_ID,
@@ -44,28 +77,12 @@ if _CLIENT_ID and _CLIENT_SECRET:
     )
 
     if _REGISTERED_CLIENT_ID:
-        # Synthesize a client in memory so the known client_id survives
-        # Cloud Run revision restarts without depending on the ephemeral file store.
-        # This mirrors what OAuthProxy already does for the upstream client_id.
         _orig_get_client = auth.get_client
 
         async def _get_client_with_fixed_registration(client_id: str):
             if client_id == _REGISTERED_CLIENT_ID:
-                from fastmcp.server.auth.oauth_proxy.models import (
-                    ProxyDCRClient,
-                )
-                from pydantic import AnyUrl
-
-                return ProxyDCRClient(
-                    client_id=client_id,
-                    client_secret=None,
-                    redirect_uris=[
-                        AnyUrl("https://claude.ai/api/mcp/oauth_callback")
-                    ],
-                    grant_types=["authorization_code", "refresh_token"],
-                    scope=auth._default_scope_str,
-                    token_endpoint_auth_method="none",
-                    allowed_redirect_uri_patterns=None,
+                return synthesize_registered_client(
+                    client_id, auth._default_scope_str
                 )
             return await _orig_get_client(client_id)
 
