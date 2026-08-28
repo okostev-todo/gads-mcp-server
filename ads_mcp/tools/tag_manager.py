@@ -59,10 +59,15 @@ def _entity_collection(entity_type: str):
     return getattr(_workspaces(), collection_name)(), list_key
 
 
-def _list_all(collection, list_key: str, parent: str) -> List[Dict[str, Any]]:
-    """Drains a paginated list call."""
+def _list_all(collection, list_key: str, **list_kwargs) -> List[Dict[str, Any]]:
+    """Drains a paginated list call.
+
+    Kwargs are passed to the collection's list method verbatim: most GTM
+    collections take 'parent', but accounts is top-level and takes nothing,
+    and the client rejects unknown parameters.
+    """
     items: List[Dict[str, Any]] = []
-    request = collection.list(parent=parent)
+    request = collection.list(**list_kwargs)
     while request is not None:
         response = request.execute()
         items.extend(response.get(list_key, []))
@@ -87,7 +92,7 @@ def list_gtm_containers() -> List[Dict[str, Any]]:
 
     try:
         service = utils.get_gtm_service()
-        accounts = _list_all(service.accounts(), "account", parent="")
+        accounts = _list_all(service.accounts(), "account")
         results = []
         for account in accounts:
             containers = _list_all(

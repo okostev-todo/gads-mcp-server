@@ -284,5 +284,53 @@ class TestWorkspacesAndVersions(TagManagerTestCase):
         self.assertEqual(len(result["versions"]), 1)
 
 
+class TestRealClientContract(unittest.TestCase):
+    """Runs every tool against the real discovery client, mocking only I/O.
+
+    MagicMock services accept any keyword argument, so a call like
+    accounts().list(parent=...) - which the real client rejects, since
+    accounts is a top-level collection - sailed through the unit tests and
+    failed in production. The real client validates parameters while building
+    a request, before any network I/O, so patching only HttpRequest.execute
+    exercises that validation.
+    """
+
+    def setUp(self):
+        from googleapiclient.discovery import build
+
+        service = build(
+            "tagmanager", "v2", developerKey="x", static_discovery=True
+        )
+        service_patch = patch(
+            "ads_mcp.utils.get_gtm_service", return_value=service
+        )
+        # An empty reply satisfies every tool: no items, no nextPageToken.
+        execute_patch = patch(
+            "googleapiclient.http.HttpRequest.execute", return_value={}
+        )
+        self.addCleanup(service_patch.stop)
+        self.addCleanup(execute_patch.stop)
+        service_patch.start()
+        execute_patch.start()
+
+    def test_every_tool_builds_valid_requests(self):
+        tag_manager.list_gtm_containers()
+        tag_manager.list_gtm_workspaces(CONTAINER)
+        tag_manager.get_gtm_workspace_status(WORKSPACE)
+        for entity_type in ("tag", "trigger", "variable", "built_in_variable"):
+            tag_manager.list_gtm_entities(WORKSPACE, entity_type)
+        tag_manager.get_gtm_entity(f"{WORKSPACE}/tags/1", "tag")
+        tag_manager.create_gtm_entity(WORKSPACE, "tag", {"name": "t"})
+        tag_manager.update_gtm_entity(
+            f"{WORKSPACE}/tags/1", "tag", {"name": "t"}
+        )
+        tag_manager.delete_gtm_entity(f"{WORKSPACE}/tags/1", "tag")
+        tag_manager.enable_gtm_built_in_variables(WORKSPACE, ["clickUrl"])
+        tag_manager.create_gtm_workspace(CONTAINER, "ws", description="d")
+        tag_manager.create_gtm_version(WORKSPACE, "v1", notes="n")
+        tag_manager.publish_gtm_version(f"{CONTAINER}/versions/12")
+        tag_manager.list_gtm_versions(CONTAINER)
+
+
 if __name__ == "__main__":
     unittest.main()
