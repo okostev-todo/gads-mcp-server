@@ -20,13 +20,45 @@ of the server.
 """
 
 import os
+import secrets as _secrets
+
 from fastmcp import FastMCP
+from fastmcp.server.auth import AccessToken
 from fastmcp.server.auth.providers.google import GoogleProvider
 
 _CLIENT_ID = os.environ.get("GOOGLE_ADS_MCP_OAUTH_CLIENT_ID")
 _CLIENT_SECRET = os.environ.get("GOOGLE_ADS_MCP_OAUTH_CLIENT_SECRET")
 _BASE_URL = os.environ.get("GOOGLE_ADS_MCP_BASE_URL", "http://localhost:8080")
 _REGISTERED_CLIENT_ID = os.environ.get("GOOGLE_ADS_MCP_REGISTERED_CLIENT_ID")
+_STATIC_TOKEN = os.environ.get("GOOGLE_ADS_MCP_STATIC_TOKEN", "")
+
+# client_id, під яким верифікуються статичні машинні токени.
+# utils._create_credentials по ньому розуміє, що юзерського Google-токена немає,
+# і падає у fallback на ADC (GOOGLE_APPLICATION_CREDENTIALS).
+MACHINE_CLIENT_ID = "machine-static"
+
+
+class GoogleOrStaticProvider(GoogleProvider):
+    """Google OAuth (claude.ai) that ALSO accepts a static machine bearer token
+    for headless clients (ads dashboard, curl)."""
+
+    def __init__(self, *args, static_token: str = "", **kwargs):
+        super().__init__(*args, **kwargs)
+        self._static_token = static_token
+
+    async def verify_token(self, token: str) -> AccessToken | None:
+        if self._static_token and _secrets.compare_digest(
+            token, self._static_token
+        ):
+            # scopes мають покривати required_scopes, інакше 403 insufficient_scope
+            return AccessToken(
+                token=token,
+                client_id=MACHINE_CLIENT_ID,
+                scopes=list(self.required_scopes or []),
+                expires_at=None,
+            )
+        return await super().verify_token(token)
+
 
 # Where Claude.ai expects the authorization code to be sent back.
 CLAUDE_REDIRECT_URI = "https://claude.ai/api/mcp/auth_callback"
@@ -62,7 +94,8 @@ def synthesize_registered_client(client_id: str, scope: str):
 
 
 if _CLIENT_ID and _CLIENT_SECRET:
-    auth = GoogleProvider(
+    auth = GoogleOrStaticProvider(
+        static_token=_STATIC_TOKEN,
         client_id=_CLIENT_ID,
         client_secret=_CLIENT_SECRET,
         base_url=_BASE_URL,
@@ -73,6 +106,10 @@ if _CLIENT_ID and _CLIENT_SECRET:
             "https://www.googleapis.com/auth/adwords",
             "https://www.googleapis.com/auth/webmasters",
             "https://www.googleapis.com/auth/analytics.readonly",
+            "https://www.googleapis.com/auth/tagmanager.readonly",
+            "https://www.googleapis.com/auth/tagmanager.edit.containers",
+            "https://www.googleapis.com/auth/tagmanager.edit.containerversions",
+            "https://www.googleapis.com/auth/tagmanager.publish",
         ],
     )
 

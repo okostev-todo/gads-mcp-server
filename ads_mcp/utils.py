@@ -41,19 +41,35 @@ logging.basicConfig(level=logging.INFO)
 # OAuth scopes used by this server.
 _ADS_SCOPE = "https://www.googleapis.com/auth/adwords"
 _GSC_SCOPE = "https://www.googleapis.com/auth/webmasters"
+_GTM_SCOPES = [
+    "https://www.googleapis.com/auth/tagmanager.readonly",
+    "https://www.googleapis.com/auth/tagmanager.edit.containers",
+    "https://www.googleapis.com/auth/tagmanager.edit.containerversions",
+    "https://www.googleapis.com/auth/tagmanager.publish",
+]
 
 
 def _create_credentials() -> google.auth.credentials.Credentials:
     """Returns Application Default Credentials with the Google Ads scope, or the FastMCP token if found."""
+    from ads_mcp.coordinator import MACHINE_CLIENT_ID
     from fastmcp.server.dependencies import get_access_token
     from google.oauth2.credentials import Credentials
 
     token_obj = get_access_token()
-    if token_obj and token_obj.token:
+    if (
+        token_obj
+        and token_obj.token
+        and token_obj.client_id != MACHINE_CLIENT_ID
+    ):
         # Create credentials using the access token provided by FastMCP
         return Credentials(token=token_obj.token)
 
-    credentials, _ = google.auth.default(scopes=[_ADS_SCOPE, _GSC_SCOPE])
+    # Machine (static-token) clients and no-auth local runs: ADC.
+    # On Cloud Run this is the authorized_user JSON mounted via
+    # GOOGLE_APPLICATION_CREDENTIALS (refresh token with the adwords scope).
+    credentials, _ = google.auth.default(
+        scopes=[_ADS_SCOPE, _GSC_SCOPE] + _GTM_SCOPES
+    )
     return credentials
 
 
@@ -109,6 +125,13 @@ def get_gsc_service():
     from googleapiclient.discovery import build
 
     return build("searchconsole", "v1", credentials=_create_credentials())
+
+
+def get_gtm_service():
+    """Returns an authenticated Google Tag Manager API client."""
+    from googleapiclient.discovery import build
+
+    return build("tagmanager", "v2", credentials=_create_credentials())
 
 
 def get_ga4_data_client():

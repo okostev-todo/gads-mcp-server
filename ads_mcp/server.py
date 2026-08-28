@@ -34,6 +34,7 @@ from ads_mcp.tools import (
     pmax,
     search_console,
     analytics,
+    tag_manager,
 )  # noqa: F401
 from ads_mcp.resources import (
     discovery,

@@ -737,6 +737,115 @@
           "tags": []
         }
       },
+      "description": "Creates a tag, trigger or variable in a GTM workspace.\n\nThe entity dict uses the GTM API v2 resource shape. The easiest way to\nget it right is to fetch a similar existing entity with get_gtm_entity\nand use it as a template: a GA4 event tag is\n{\"name\": \"...\", \"type\": \"gaawe\", \"parameter\": [...],\n\"firingTriggerId\": [\"<triggerId>\"]}, a custom-event trigger is\n{\"name\": \"...\", \"type\": \"customEvent\", \"customEventFilter\": [...]}.\n\nThe change stays unpublished in the workspace until a version is created\nand published, so this does not affect the live site.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "additionalProperties": true,
+            "description": "The entity resource dict as described above.",
+            "type": "object"
+          },
+          "entity_type": {
+            "description": "'tag', 'trigger' or 'variable'.",
+            "type": "string"
+          },
+          "workspace_path": {
+            "description": "Workspace to create in,\ne.g. 'accounts/123/containers/456/workspaces/7'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_path",
+          "entity_type",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "name": "create_gtm_entity",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Freezes a GTM workspace into a container version.\n\nThis is GTM's Submit step: the workspace's changes become an immutable\nversion and the workspace is consumed. The version does NOT go live until\npublish_gtm_version - so this is still safe, and the right place to stop\nfor a human review.\n\nCheck 'compilerError' in the reply: when true, the version was not\ncreated and 'syncStatus'/'mergeConflict' explain why (usually the\nworkspace is behind the live container).",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "Version name shown in the GTM versions list.",
+            "type": "string"
+          },
+          "notes": {
+            "default": null,
+            "description": "Optional notes describing the changes.",
+            "type": "string"
+          },
+          "workspace_path": {
+            "description": "Workspace to freeze,\ne.g. 'accounts/123/containers/456/workspaces/7'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_path",
+          "name"
+        ],
+        "type": "object"
+      },
+      "name": "create_gtm_version",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Creates a new workspace in a GTM container.\n\nA separate workspace keeps a batch of related changes isolated from other\nedits until they ship together, and is cheap to discard if the approach\nchanges.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "container_path": {
+            "description": "Container path, e.g. 'accounts/123/containers/456'.",
+            "type": "string"
+          },
+          "description": {
+            "default": null,
+            "description": "Optional description of what the workspace is for.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Workspace name.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "container_path",
+          "name"
+        ],
+        "type": "object"
+      },
+      "name": "create_gtm_workspace",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "description": "Creates a responsive search ad (RSA) within an ad group.\n\nNew ads are created in PAUSED status by default. Google Ads rotates\nand tests combinations of headlines and descriptions automatically.",
       "inputSchema": {
         "additionalProperties": false,
@@ -854,6 +963,91 @@
           "tags": []
         }
       },
+      "description": "Deletes a tag, trigger or variable from a GTM workspace.\n\nThe deletion is staged in the workspace like any other edit and reaches\nthe live site only when a version is created and published. A tag whose\nonly firing trigger is deleted stops firing, so check references first.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_path": {
+            "description": "Entity path,\ne.g. 'accounts/123/containers/456/workspaces/7/tags/8'.",
+            "type": "string"
+          },
+          "entity_type": {
+            "description": "'tag', 'trigger' or 'variable'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_path",
+          "entity_type"
+        ],
+        "type": "object"
+      },
+      "name": "delete_gtm_entity",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Enables built-in variables in a GTM workspace.\n\nBuilt-in variables (Click URL, Page Path, Event and so on) exist in every\ncontainer but are disabled by default; a tag or trigger referencing a\ndisabled one gets an empty value. Type names use the API's camelCase, so\n'clickUrl', 'pagePath', 'eventName', 'formId'.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "types": {
+            "description": "Built-in variable type names to enable.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workspace_path": {
+            "description": "Workspace path,\ne.g. 'accounts/123/containers/456/workspaces/7'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_path",
+          "types"
+        ],
+        "type": "object"
+      },
+      "name": "enable_gtm_built_in_variables",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "annotations": {
         "readOnlyHint": true
       },
@@ -949,6 +1143,69 @@
         "type": "object"
       },
       "name": "get_ga4_metadata",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Fetches one GTM tag, trigger or variable with full details.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_path": {
+            "description": "Entity path from a listing,\ne.g. 'accounts/123/containers/456/workspaces/7/tags/8'.",
+            "type": "string"
+          },
+          "entity_type": {
+            "description": "'tag', 'trigger' or 'variable'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_path",
+          "entity_type"
+        ],
+        "type": "object"
+      },
+      "name": "get_gtm_entity",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Shows the pending changes and merge conflicts of a workspace.\n\nUse before create_gtm_version to review exactly what would ship. A\nconflict means the live container moved since the workspace was created;\nresolve it in the GTM UI or discard the workspace.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "workspace_path": {
+            "description": "Workspace path,\ne.g. 'accounts/123/containers/456/workspaces/7'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_path"
+        ],
+        "type": "object"
+      },
+      "name": "get_gtm_workspace_status",
       "outputSchema": {
         "additionalProperties": true,
         "type": "object"
@@ -1188,6 +1445,160 @@
           "tags": []
         }
       },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists GTM accounts and the containers in each of them.\n\nStart here: the 'path' values in the reply (accounts/123 and\naccounts/123/containers/456) are what every other GTM tool takes as\ninput. The container's publicId is the GTM-XXXXXXX id seen in the site's\nsource code.\n\nReturns:\n    List of account dicts, each with 'containers' holding that account's\n    containers (path, publicId, name, usageContext).",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "list_gtm_containers",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists tags, triggers or variables in a GTM workspace.\n\nThe listing shows the workspace's view of the container: published\nentities plus this workspace's unpublished edits.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_type": {
+            "description": "'tag', 'trigger', 'variable' or 'built_in_variable'.",
+            "type": "string"
+          },
+          "workspace_path": {
+            "description": "Workspace path,\ne.g. 'accounts/123/containers/456/workspaces/7'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_path",
+          "entity_type"
+        ],
+        "type": "object"
+      },
+      "name": "list_gtm_entities",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists a container's versions and identifies the live one.\n\nUse to review history before publishing and to find the version to roll\nback to.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "container_path": {
+            "description": "Container path, e.g. 'accounts/123/containers/456'.",
+            "type": "string"
+          },
+          "include_deleted": {
+            "default": false,
+            "description": "Also list deleted versions. Default False.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "container_path"
+        ],
+        "type": "object"
+      },
+      "name": "list_gtm_versions",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "description": "Lists the workspaces of a GTM container.\n\nA workspace is where unpublished edits live, like a branch. The 'Default\nWorkspace' always exists; create_gtm_workspace makes an isolated one for\na batch of related changes.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "container_path": {
+            "description": "Container path, e.g. 'accounts/123/containers/456'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "container_path"
+        ],
+        "type": "object"
+      },
+      "name": "list_gtm_workspaces",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
       "description": "Applies arbitrary write operations to any Google Ads resource.\n\nThis is the general-purpose write tool: it wraps GoogleAdsService.Mutate,\nwhich accepts operations for any mutable resource type. Prefer it when no\ndedicated tool exists for what you need, or when several changes must be\napplied together.\n\nAlways dry-run first with validate_only=True. The API then checks every\noperation and reports errors without writing anything, which is the safe\nway to confirm an operation is well formed before it takes effect.\n\nEach entry in `operations` is an object with exactly one\n'<resource>_operation' key, whose value holds one of 'create', 'update' or\n'remove'. For 'update' the update_mask is derived automatically from the\nfields you set, so you normally do not pass it. For 'remove' the value is\nthe resource name string. Enum fields are given as their string name, and\nmonetary amounts are in micros (1 unit = 1,000,000 micros).",
       "inputSchema": {
         "additionalProperties": false,
@@ -1222,6 +1633,32 @@
         "type": "object"
       },
       "name": "mutate_google_ads",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Publishes a container version, making it live on the site.\n\nThis is the one GTM tool with immediate real-world effect: every page\nloading this container starts serving the version's tags right away.\nConfirm with the user before calling it unless they explicitly asked to\npublish. Rollback is republishing the previous version from the versions\nlist, so note the currently live version id first (list_gtm_versions\nshows it).",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "version_path": {
+            "description": "Version path from create_gtm_version,\ne.g. 'accounts/123/containers/456/versions/12'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_path"
+        ],
+        "type": "object"
+      },
+      "name": "publish_gtm_version",
       "outputSchema": {
         "additionalProperties": true,
         "type": "object"
@@ -1944,6 +2381,43 @@
         ],
         "type": "object",
         "x-fastmcp-wrap-result": true
+      }
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Updates a tag, trigger or variable in a GTM workspace.\n\nThe update replaces the whole entity, not just the fields provided:\nfetch the current entity with get_gtm_entity, modify it, and send the\ncomplete dict back. Sending a partial dict silently drops the omitted\nsettings.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "additionalProperties": true,
+            "description": "The complete entity resource dict.",
+            "type": "object"
+          },
+          "entity_path": {
+            "description": "Entity path,\ne.g. 'accounts/123/containers/456/workspaces/7/tags/8'.",
+            "type": "string"
+          },
+          "entity_type": {
+            "description": "'tag', 'trigger' or 'variable'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_path",
+          "entity_type",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "name": "update_gtm_entity",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
       }
     },
     {

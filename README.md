@@ -69,6 +69,21 @@ Campaign and Performance Max maintenance:
 > **Note:** Write tools require a Standard Access developer token to operate on
 > production accounts. Explorer-level access is limited to test accounts.
 
+Google Tag Manager:
+
+- `list_gtm_containers`, `list_gtm_workspaces`, `list_gtm_versions`,
+  `get_gtm_workspace_status`: Discover accounts, containers, workspaces,
+  versions and pending changes.
+- `list_gtm_entities`, `get_gtm_entity`: Read tags, triggers, variables and
+  built-in variables in a workspace.
+- `create_gtm_entity`, `update_gtm_entity`, `delete_gtm_entity`,
+  `enable_gtm_built_in_variables`, `create_gtm_workspace`: Stage changes in a
+  workspace. Nothing here affects the live site.
+- `create_gtm_version`: Freezes a workspace into a container version
+  (GTM's Submit) without publishing it.
+- `publish_gtm_version`: Publishes a version, changing the tags served on the
+  live site immediately. The only GTM tool with real-world effect.
+
 ### Resources available
 
 - `discovery-document`: Retrieve the Google Ads API discovery document. Provides the discovery document for the latest version of the Google Ads API, which describes the API surface, including resources, methods, and schemas. Host LLMs should access this resource to understand the structure of the Google Ads API and discover available features.

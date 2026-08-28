@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0] - 2026-08-28
+
+### Added
+- Google Tag Manager integration (`tag_manager` module), 13 tools covering
+  the full GTM change flow: `list_gtm_containers`, `list_gtm_workspaces`,
+  `get_gtm_workspace_status`, `list_gtm_entities`, `get_gtm_entity`,
+  `create_gtm_entity`, `update_gtm_entity`, `delete_gtm_entity`,
+  `enable_gtm_built_in_variables`, `create_gtm_workspace`,
+  `create_gtm_version`, `publish_gtm_version`, `list_gtm_versions`.
+  Edits stage in a workspace; only `publish_gtm_version` affects the live
+  site. Uses GTM API v2 through the already-present google-api-python-client,
+  so no new dependencies.
+- Four `tagmanager.*` OAuth scopes added to GoogleProvider and the ADC
+  fallback. **Re-authentication of the Claude.ai connector is required** to
+  grant them.
+
+### Notes
+- The GTM API default quota is ~15 requests/minute; tools batch listings
+  and drain pagination in one call to stay under it.
+
 ## [0.4.0] - 2026-08-13
 
 ### Added
